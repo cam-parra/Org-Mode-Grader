@@ -38,7 +38,7 @@
                          :structure
                          (org-get-plain-list list-name))
               if (string= (nth 4 el) "[X]")
-              collect (let ((item (buffer-substring (first el) (first (last el)))))
+              collect (let ((item (buffer-substring (first el) (cadr el))))
                           (string-match "\\[X\\]\\s-\\(.*\\)$" item)
                           (match-string 1 item)))))
 
@@ -48,7 +48,7 @@
         (mapcar
          (lambda (el)
            (when (string= (nth 4 el) "[X]")
-             (let ((item (buffer-substring (first el) (first (last el)))))
+             (let ((item (buffer-substring (first el) (cadr el))))
                (string-match "\\[X\\]\\s-\\(.*\\)$" item)
                (match-string 1 item))))
          (org-element-property :structure (org-get-plain-list list-name))))))
@@ -59,7 +59,7 @@
 
     (defun get-answer (question)
       "A wrapper for the cdr function."
-      (cdr question))
+      (cadr question))
 
     (defun get-student-answer (question)
       "A simple wrapper for get-radio-list-value"
@@ -91,10 +91,11 @@
     (defun grade-final (answer-key)
       (get-score (mark-test answer-key)))
 
-     (grade-final `(,'("kill" . "b") ,'("test" . "two") ,'("bob" . "Correct!")))
+     (grade-final `(,'("kill" "b") ,'("test" "two") ,'("bob" "Correct!")))
   #+end_src
 
   #+RESULTS:
+
   : 100.0
 
 
