@@ -1,16 +1,41 @@
-* COMMENT First
-
-  #+name: kill
+* First
+  #+name: 2
   - [ ] a
-  - [X] b
+  - [ ] b
+  - [ ] c
+  - [X] d
+ 
+
+  #+name: 3 
+  - [ ] a
+  - [ ] b
+  - [X] c
+  - [ ] d
+
+  #+name: 4
+  - [ ] a
+  - [ ] b
+  - [X] c
+  - [ ] d
+ 
+
+  #+name: 5 
+  - [ ] a
+  - [ ] b
+  - [X] c
+  - [ ] d
+
+  #+name: first
+  - [ ] a
+  - [ ] b
   - [ ] c
     
-  #+name: bob
-  - [ ] wrong
-  - [ ] almost right
-  - [ ] definitely not
-  - [ ] Death
-  - [X] Correct!
+  #+name: 1
+  - [ ] 1
+  - [ ] 2
+  - [ ] 99
+  - [ ] h
+  - [ ] Correct One!
 
   #+name: test
   - [ ] one
@@ -38,20 +63,9 @@
                          :structure
                          (org-get-plain-list list-name))
               if (string= (nth 4 el) "[X]")
-              collect (let ((item (buffer-substring (first el) (cadr el))))
+              collect (let ((item (buffer-substring (first el) (first (last el)))))
                           (string-match "\\[X\\]\\s-\\(.*\\)$" item)
                           (match-string 1 item)))))
-
-    (defun test-get-radio (list-name)
-      "Return the value of the checked item in a radio list."
-      (remove-if nil (save-excursion
-        (mapcar
-         (lambda (el)
-           (when (string= (nth 4 el) "[X]")
-             (let ((item (buffer-substring (first el) (cadr el))))
-               (string-match "\\[X\\]\\s-\\(.*\\)$" item)
-               (match-string 1 item))))
-         (org-element-property :structure (org-get-plain-list list-name))))))
 
     (defun get-name (question)
       "A wrapper for the car function."
@@ -78,6 +92,8 @@
           1 0))
 
     (defun mark-test (answer-key)
+      "This will go through each question and return collect into a
+    list, 1 if correct, and 0 if incorrect."
       (mapcar
        (lambda (question)
          (let ((student-answer (get-student-answer question)))
@@ -88,14 +104,18 @@
       "Sums correct answers and returns percentage correct."
       (* 100 (/ (apply '+ test-results) (float (length test-results)))))
 
-    (defun grade-final (answer-key)
+    (defun grade-test (answer-key)
       (get-score (mark-test answer-key)))
 
-     (grade-final `(,'("kill" "b") ,'("test" "two") ,'("bob" "Correct!")))
+    (grade-test `(,'("first" "b")
+                   ,'("test" "two")
+                   ,'("1" "Correct One!")
+                   ,'("2" "d")
+                   ,'("3" "c")
+                   ,'("4" "c")
+                   ,'("5" "a")))
   #+end_src
 
   #+RESULTS:
-
-  : 100.0
-
+  : 57.14285714285714
 
