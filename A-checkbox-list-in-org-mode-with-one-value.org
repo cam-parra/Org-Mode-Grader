@@ -1,23 +1,42 @@
 * A checkbox list in org-mode with one value
   
-  SAMPLES 
+  SAMPLES
+  
+  #+name: 1
+  - [X] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [ ] e
 
-  #+name: kill
+  #+name: 2
   - [ ] a
   - [X] b
   - [ ] c
-    
-  #+name: bob
-  - [ ] wrong
-  - [ ] almost right
-  - [ ] definitely not
-  - [ ] Death
-  - [X] Correct!
+  - [ ] d
+  - [ ] e
+ 
 
-  #+name: test
-  - [ ] one
-  - [X] two
-  - [ ] three
+  #+name: 3 
+  - [ ] a
+  - [ ] b
+  - [ ] c
+  - [X] d
+  - [ ] e
+
+  #+name: 4
+  - [ ] a
+  - [ ] b
+  - [ ] c
+  - [X] d
+  - [ ] e
+
+  #+name: 5 
+  - [ ] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [X] e
     
 ** KEY GENERATION
 
@@ -29,95 +48,81 @@
    |        3 | c      |
    |        4 | d      |
    |        5 | e      |
-
+   
 
 
    #+begin_src emacs-lisp :exports code :var data=key
-   (setq answer-key (map 'list (lambda (x) (list (car x) (cadr x))) data))
+     (setq answer-key (mapcar (lambda (x) (list (car x) (cadr x))) data))
    #+end_src
-
-   #+RESULTS:
 
 ** Process Test
     
-  #+begin_src emacs-lisp
-    (require 'org-element)
+#+begin_src emacs-lisp
+  (require 'org-element)
 
-    (defun org-get-plain-list (name)
-      "Get the org-element representation of a plain-list with NAME."
-      (catch 'found
-        (org-element-map
-            (org-element-parse-buffer)
-            'plain-list
-          (lambda (plain-list)
-            (when
-                (string= name (org-element-property :name plain-list))
-              (throw 'found plain-list))))))
+  (defun org-get-plain-list (name)
+    "Get the org-element representation of a plain-list with NAME."
+    (catch 'found
+      (org-element-map
+          (org-element-parse-buffer)
+          'plain-list
+        (lambda (plain-list)
+          (when
+              (string= name (org-element-property :name plain-list))
+            (throw 'found plain-list))))))
 
-    (defun get-radio-list-value (list-name)
-      "Return the value of the checked item in a radio list."
-      (save-excursion
-        (loop for el in (org-element-property
-                         :structure
-                         (org-get-plain-list list-name))
-              if (string= (nth 4 el) "[X]")
-              collect (let ((item (buffer-substring (first el) (cadr el))))
-                          (string-match "\\[X\\]\\s-\\(.*\\)$" item)
-                          (match-string 1 item)))))
+  (defun get-radio-list-value (list-name)
+    "Return the value of the checked item in a radio list."
+    (save-excursion
+      (loop for el in (org-element-property
+                       :structure
+                       (org-get-plain-list list-name))
+            if (string= (nth 4 el) "[X]")
+            collect (let ((item (buffer-substring (first el) (first (last el)))))
+                      (string-match "\\[X\\]\\s-\\(.*\\)$" item)
+                      (match-string 1 item)))))
 
-    (defun test-get-radio (list-name)
-      "Return the value of the checked item in a radio list."
-      (remove-if nil (save-excursion
-        (mapcar
-         (lambda (el)
-           (when (string= (nth 4 el) "[X]")
-             (let ((item (buffer-substring (first el) (cadr el))))
-               (string-match "\\[X\\]\\s-\\(.*\\)$" item)
-               (match-string 1 item))))
-               (org-element-property 
-               :structure 
-               (org-get-plain-list list-name))))))
+  (defun get-name (question)
+    "A wrapper for the car function, doing conversion if needed."
+    (let ((name (car question)))
+      (if (numberp name) (number-to-string name) name)))
 
-    (defun get-name (question)
-      "A wrapper for the car function."
-      (car question))
+  (defun get-answer (question)
+    "A wrapper for the cadr function, doing conversion if needed."
+    (let  ((answer (cadr question)))
+      (if (numberp answer) (number-to-string answer) answer)))
 
-    (defun get-answer (question)
-      "A wrapper for the cdr function."
-      (cadr question))
+  (defun get-student-answer (question)
+    "A simple wrapper for get-radio-list-value"
+    (get-radio-list-value (get-name question)))
 
-    (defun get-student-answer (question)
-      "A simple wrapper for get-radio-list-value"
-      (get-radio-list-value (get-name question)))
+  (defun validate-answer (student-answer)
+    "Validates that a student chose just one answer then returns
+      that answer. Otherwise answer set to a string that will always be
+      incorrect."
+    (if (= 1 (length student-answer))
+        (first student-answer) "Invalid or unanswered."))
 
-    (defun validate-answer (student-answer)
-      "Validates that a student chose just one answer then returns
-    that answer. Otherwise answer set to a string that will always be
-    incorrect."
-      (if (= 1 (length student-answer))
-          (first student-answer) "Invalid or unanswered."))
+  (defun mark-question (student-answer question)
+    "Compares the student's answer to the correct answer."
+    (if (string= student-answer (get-answer question))
+        1 0))
 
-    (defun mark-question (student-answer question)
-      "Compares the student's answer to the correct answer."
-      (if (string= student-answer (get-answer question))
-          1 0))
+  (defun mark-test (answer-key)
+    "This will go through each question and return collect into a
+      list, 1 if correct, and 0 if incorrect."
+    (mapcar
+     (lambda (question)
+       (let ((student-answer (get-student-answer question)))
+         (mark-question (validate-answer student-answer) question)))
+     answer-key))
 
-    (defun mark-test (answer-key)
-      (mapcar
-       (lambda (question)
-         (let ((student-answer (get-student-answer question)))
-           (mark-question (validate-answer student-answer) question)))
-       answer-key))
+  (defun get-score (test-results)
+    "Sums correct answers and returns percentage correct."
+    (* 100 (/ (apply '+ test-results) (float (length test-results)))))
 
-    (defun get-score (test-results)
-      "Sums correct answers and returns percentage correct."
-      (* 100 (/ (apply '+ test-results) (float (length test-results)))))
+  (defun grade-test (answer-key)
+    (get-score (mark-test answer-key)))
 
-    (defun grade-final (answer-key)
-      (get-score (mark-test answer-key)))
-
-     (grade-final `(,'("kill" "b") ,'("test" "two") ,'("bob" "Correct!")))
-  #+end_src
-
-
-  
+  (grade-test answer-key)
+#+end_src
