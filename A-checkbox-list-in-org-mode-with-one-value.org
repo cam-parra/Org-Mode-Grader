@@ -20,8 +20,8 @@
   #+name: 3 
   - [ ] a
   - [ ] b
-  - [ ] c
-  - [X] d
+  - [X] c
+  - [ ] d
   - [ ] e
 
   #+name: 4
@@ -32,8 +32,8 @@
   - [ ] e
 
   #+name: 5 
-  - [ ] a
-  - [ ] b
+  - [X] a
+  - [X] b
   - [ ] c
   - [ ] d
   - [X] e
@@ -50,10 +50,16 @@
    |        5 | e      |
    
 
-
    #+begin_src emacs-lisp :exports code :var data=key
      (setq answer-key (mapcar (lambda (x) (list (car x) (cadr x))) data))
    #+end_src
+
+   #+RESULTS:
+   | 1 | a |
+   | 2 | b |
+   | 3 | c |
+   | 4 | d |
+   | 5 | e |
 
 ** Process Test
     
@@ -126,3 +132,6 @@
 
   (grade-test answer-key)
 #+end_src
+
+#+RESULTS:
+: 60.0
