@@ -32,6 +32,13 @@
   - [ ] e
 
   #+name: 5 
+  - [ ] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [X] e
+
+ #+name: 6 
   - [X] a
   - [X] b
   - [ ] c
@@ -48,22 +55,25 @@
    |        3 | c      |
    |        4 | d      |
    |        5 | e      |
+   |        6 | a      |
    
 
+   #+name: answer-key-list
    #+begin_src emacs-lisp :exports code :var data=key
-     (setq answer-key (mapcar (lambda (x) (list (car x) (cadr x))) data))
+     (mapcar (lambda (x) (list (car x) (cadr x))) data)
    #+end_src
 
-   #+RESULTS:
+   #+RESULTS: answer-key-list
    | 1 | a |
    | 2 | b |
    | 3 | c |
    | 4 | d |
    | 5 | e |
+   | 6 | a |
 
 ** Process Test
     
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :var answer-key=answer-key-list
   (require 'org-element)
 
   (defun org-get-plain-list (name)
@@ -134,4 +144,4 @@
 #+end_src
 
 #+RESULTS:
-: 60.0
+: 83.33333333333334
