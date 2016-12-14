@@ -1,0 +1,49 @@
+ #+name: 1
+  - [X] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [ ] e
+
+  #+name: 2
+  - [ ] a
+  - [X] b
+  - [ ] c
+  - [ ] d
+  - [ ] e
+ 
+
+  #+name: 3 
+  - [ ] a
+  - [ ] b
+  - [X] c
+  - [ ] d
+  - [ ] e
+
+  #+name: 4
+  - [ ] a
+  - [ ] b
+  - [ ] c
+  - [X] d
+  - [ ] e
+
+  #+name: 5 
+  - [ ] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [X] e
+
+ #+name: 6 
+  - [X] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [ ] e
+
+#+begin_src emacs-lisp
+(grade-test answer-key)
+#+end_src
+
+#+RESULTS:
+: 100.0
