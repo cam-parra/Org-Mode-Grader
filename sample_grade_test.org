@@ -1,22 +1,24 @@
+#+STARTUP:   showeverything
 * A checkbox list in org-mode with one value
   
   SAMPLES
+  
   #+name: 1
   #+attr-org: :radio
   - [ ] a
   - [ ] b
-  - [ ] c
+  - [X] c
   - [ ] d
-  - [X] e
-
+  - [ ] e
+    
   #+name: 2
   #+attr-org: :radio
   - [ ] a
   - [X] b
   - [ ] c
   - [ ] d
-  - [ ] e
- 
+  - [X] e
+    
     
   #+name: 3
   #+attr-org: :radio 
@@ -25,30 +27,30 @@
   - [X] c
   - [ ] d
   - [ ] e
-
+    
   #+name: 4
   #+attr-org: :radio
   - [ ] a
   - [ ] b
   - [ ] c
-  - [X] d
+  - [ ] d
   - [ ] e
-
+    
   #+name: 5
   #+attr-org: :radio
   - [ ] a
-  - [ ] b
+  - [X] b
   - [ ] c
   - [ ] d
   - [X] e
-
+    
   #+name: 6
   #+attr-org: :radio
   - [X] a
-  - [ ] b
-  - [ ] c
+  - [X] b
+  - [X] c
   - [ ] d
-  - [ ] e
+  - [X] e
     
 ** KEY GENERATION
 
@@ -77,7 +79,6 @@
 ** Process Test
 #+begin_src emacs-lisp
   (require 'dash)
-
   (defun check-hook-fn ()
     (when (-contains? (org-element-property
                        :attr_org
@@ -85,8 +86,7 @@
                       ":radio")
       (save-excursion
         (loop for el in (org-element-property :structure (org-element-context))
-              do
-              (goto-char (car el))
+              do (goto-char (car el))
               (when (re-search-forward "\\[X\\]" (line-end-position) t)
                 (replace-match "[ ]"))))
       (beginning-of-line)
@@ -170,5 +170,3 @@
 #+RESULTS:
 : grade-test
 
-#+RESULTS: grade-test
-: grade-test
