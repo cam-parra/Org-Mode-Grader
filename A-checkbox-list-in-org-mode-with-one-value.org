@@ -1,8 +1,8 @@
 * A checkbox list in org-mode with one value
   
   SAMPLES
-  
   #+name: 1
+  #+attr-org: :radio
   - [X] a
   - [ ] b
   - [ ] c
@@ -10,14 +10,16 @@
   - [ ] e
 
   #+name: 2
+  #+attr-org: :radio
   - [ ] a
   - [X] b
   - [ ] c
   - [ ] d
   - [ ] e
  
-
-  #+name: 3 
+    
+  #+name: 3
+  #+attr-org: :radio 
   - [ ] a
   - [ ] b
   - [X] c
@@ -25,18 +27,28 @@
   - [ ] e
 
   #+name: 4
+  #+attr-org: :radio
   - [ ] a
   - [ ] b
   - [ ] c
   - [X] d
   - [ ] e
 
-  #+name: 5 
-  - [X] a
-  - [X] b
+  #+name: 5
+  #+attr-org: :radio
+  - [ ] a
+  - [ ] b
   - [ ] c
   - [ ] d
   - [X] e
+
+  #+name: 6
+  #+attr-org: :radio
+  - [X] a
+  - [ ] b
+  - [ ] c
+  - [ ] d
+  - [ ] e
     
 ** KEY GENERATION
 
@@ -48,21 +60,45 @@
    |        3 | c      |
    |        4 | d      |
    |        5 | e      |
-   
+   |        6 | a      |
+ 
+#+begin_src emacs-lisp :var data=key
+(setq answer-key data)
+#+end_src
 
-   #+begin_src emacs-lisp :exports code :var data=key
-     (setq answer-key (mapcar (lambda (x) (list (car x) (cadr x))) data))
-   #+end_src
-
-   #+RESULTS:
-   | 1 | a |
-   | 2 | b |
-   | 3 | c |
-   | 4 | d |
-   | 5 | e |
-
+#+RESULTS:
+| 1 | a |
+| 2 | b |
+| 3 | c |
+| 4 | d |
+| 5 | e |
+| 6 | a |
+  
 ** Process Test
-    
+#+begin_src emacs-lisp
+  (require 'dash)
+
+  (defun check-hook-fn ()
+    (when (-contains? (org-element-property
+                       :attr_org
+                       (org-element-property :parent (org-element-context)))
+                      ":radio")
+      (save-excursion
+        (loop for el in (org-element-property :structure (org-element-context))
+              do
+              (goto-char (car el))
+              (when (re-search-forward "\\[X\\]" (line-end-position) t)
+                (replace-match "[ ]"))))
+      (beginning-of-line)
+      (re-search-forward "\\[\\s-\\]" (line-end-position) t)
+      (replace-match "[X]")))
+
+  (add-hook 'org-checkbox-statistics-hook 'check-hook-fn)
+#+end_src
+
+#+RESULTS:
+| check-hook-fn |
+
 #+begin_src emacs-lisp
   (require 'org-element)
 
@@ -129,9 +165,10 @@
 
   (defun grade-test (answer-key)
     (get-score (mark-test answer-key)))
-
-  (grade-test answer-key)
 #+end_src
 
 #+RESULTS:
-: 60.0
+: grade-test
+
+#+RESULTS: grade-test
+: grade-test
