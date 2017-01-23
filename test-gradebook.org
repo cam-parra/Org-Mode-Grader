@@ -1,0 +1,94 @@
+| Student | 00 Assi | 01 Asse | 01 Assi | 02 Asse | 02 Assi | 03 Asse | 03 Assi | 04 Asse | 04 Assi | 05 Asse | 05 Assi | 06 Asse | 06 Assi | 07 Asse | 07 Assi | 08 Asse | 08 Assi | 09 Asse | 09 Assi | 10 Asse | 10 Assi | 11 Asse | 11 Assi | 12 Asse | 12 Assi | Final | Letter |
+|---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+-------+--------|
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+|         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |         |       |        |
+#+tblfm: $2='(get-assign-long $1 @1$2)::$3='(get-assign-long $1 @1$3)::$4='(get-assign-long $1 @1$4)::$5='(get-assign-long $1 @1$5)::$6='(get-assign-long $1 @1$6)::$7='(get-assign-long $1 @1$7)::$8='(get-assign-long $1 @1$8)::$9='(get-assign-long $1 @1$9)::$10='(get-assign-long $1 @1$10 t)::$11='(get-assign-long $1 @1$11)::$12='(get-assign-long $1 @1$12)::$13='(get-assign-long $1 @1$13)::$14='(get-assign-long $1 @1$14)::$15='(get-assign-long $1 @1$15)::$16='(get-assign-long $1 @1$16)::$17='(get-assign-long $1 @1$17)::$18='(get-assign-long $1 @1$18)::$19='(get-assign-long $1 @1$19)::$20='(get-assign-long $1 @1$20)::$21='(get-assign-long $1 @1$21)::$22='(get-assign-long $1 @1$22)::$23='(get-assign-long $1 @1$23)::$24='(get-assign-long $1 @1$24)::$25='(get-assign-long $1 @1$25)::$26='(get-assign-long $1 @1$26)::$27='(get-final-score)::$28='(get-final-letter)
+
+
+| Student | 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | Score | letter |
+|---------+----+----+----+----+----+----+----+----+----+----+----+----+----+-------+--------|
+|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
+|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
+|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
+|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
+|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
+|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
+#+tblfm: $2='(get-assign $1 @1$2)::$3='(get-assign $1 @1$3)::$4='(get-assign $1 @1$4)::$5='(get-assign $1 @1$5)::$6='(get-assign $1 @1$6)::$7='(get-assign $1 @1$7)::$8='(get-assign $1 @1$8)::$9='(get-assign $1 @1$9)::$10='(get-assign $1 @1$10)::$11='(get-assign $1 @1$11)::$12='(get-assign $1 @1$12)::$13='(get-assign $1 @1$13)::$14='(get-assign $1 @1$14)::$15='(get-final-score)::$16='(get-final-letter)
+
+#+begin_src emacs-lisp
+  (defun get-assign-long (student assign &optional new)
+    (let ((num (substring assign 0 2))
+          (link-name (if (string-match "Assi" assign) "wa" "pa")))
+      (when new (get-student-file student))
+      (format (file-link-string student num link-name) (find-assign-score-long assign))))
+
+  (defun find-assign-score-long (assign)
+    (extract-score
+          (car (remove-if nil
+                          (mapcar (lambda (line)
+                                    (when (string-match assign line)
+                                      line)) current-file)))))
+
+  (defun get-assign (student assign)
+    (when (not (string= student file-student))
+      (get-student-file student))
+    (let ((assign-scores (find-assign-score assign))
+          (assign-file-string (file-link-string student assign "wa"))
+          (assess-file-string (file-link-string student assign "pa")))
+     (if (= (length assign-scores) 2)
+         (format (concat assess-file-string " " assign-file-string)
+                 (car assign-scores) (cadr assign-scores))
+       (format assign-file-string (car assign-scores)))))
+
+  (defun find-assign-score (assign)
+    (let ((assign-list
+           (remove-if nil
+                      (mapcar (lambda (line)
+                                (when (is-assign-line assign line) line))
+                              current-file))))
+      (cons (extract-score (car assign-list))
+            (when (> (length assign-list) 1)
+              (list (extract-score (cadr assign-list)))))))
+
+  (defun file-link-string (student num link-name)
+    (concat "[[file:~/" semester "/" class "/" student "/week" num "/" link-name num ".org][%3s]]"))
+
+  (defun is-assign-line (assign line)
+    (or (string-match (concat assign " Assign") line)
+        (string-match (concat assign " Assess") line)))
+
+  (defun get-student-file (student)
+    (setq current-file
+          (with-temp-buffer
+            (insert-file-contents
+             (concat "~/" semester "/" class "/" student "/week00/see-grades.org"))
+            (split-string (buffer-string) "\n" t))
+          final-info (split-up-score (car (last current-file)))
+          file-student student))
+
+  (defun extract-score (assign-line)
+    (nth 1 (split-up-score (assign-line))))
+
+  (defun get-final-score ()
+    (car (split-up-score (car (last current-file)))))
+
+  (defun get-final-letter () (cadr (split-up-score (car (last current-file)))))
+
+  (defun split-up-score (score-line)
+    (split-string score-line "|" t "\\s-+"))
+                                          ;(get-assign-long "lmj-1" "00 Assign" t)
+  (defvar file-student "STARTUP")
+  (defvar semester "972528")
+  (defvar class "1")
+#+end_src
+
+#+RESULTS:
+: file-student
+
+
