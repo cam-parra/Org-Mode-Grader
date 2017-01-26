@@ -5,63 +5,79 @@
 |         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
 |         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
 |         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
-|         |    |    |    |    |    |    |    |    |    |    |    |    |    |       |        |
 #+tblfm: $2='(get-assign $1 @1$2)::$3='(get-assign $1 @1$3)::$4='(get-assign $1 @1$4)::$5='(get-assign $1 @1$5)::$6='(get-assign $1 @1$6)::$7='(get-assign $1 @1$7)::$8='(get-assign $1 @1$8)::$9='(get-assign $1 @1$9)::$10='(get-assign $1 @1$10)::$11='(get-assign $1 @1$11)::$12='(get-assign $1 @1$12)::$13='(get-assign $1 @1$13)::$14='(get-assign $1 @1$14)::$15='(get-final-score)::$16='(get-final-letter)
 
 #+begin_src emacs-lisp
-(defun get-assign (student assign)
-    (when (not (string= student file-student))
-      (get-student-file student))
-    (let ((assign-scores (find-assign-score assign))
-          (assign-file-string (file-link-string student assign "wa"))
-          (assess-file-string (file-link-string student assign "pa")))
-     (if (= (length assign-scores) 2)
-         (format (concat assess-file-string " " assign-file-string)
-                 (car assign-scores) (cadr assign-scores))
-       (format assign-file-string (car assign-scores)))))
+    (defun get-assign (student assign)
+      "This will get the scores of the assignments for the week and
+  then return all the scores after bening formated properly. If
+  needed the file will be updated to match the current student."
+      (when (not (string= student file-student))
+        (get-student-file student))
+      (let ((assign-scores (find-assign-score assign))
+            (assign-file-string (file-link-string student assign "wa"))
+            (assess-file-string (file-link-string student assign "pa")))
+        (if (= (length assign-scores) 2)
+            (format (concat assess-file-string " " assign-file-string)
+                    (car assign-scores) (cadr assign-scores))
+          (format assign-file-string (car assign-scores)))))
 
-  (defun find-assign-score (assign)
-    (let ((assign-list
-           (remove-if nil
-                      (mapcar (lambda (line)
-                                (when (is-assign-line assign line) line))
-                              current-file))))
-      (cons (extract-score (car assign-list))
-            (when (> (length assign-list) 1)
-              (list (extract-score (cadr assign-list)))))))
+    (defun find-assign-score (assign)
+      "This will gather together the assignment scores for the week."
+      (let ((assign-list
+             (remove-if nil
+                        (mapcar (lambda (line)
+                                  (when (is-assign-line assign line) line))
+                                current-file))))
+        (mapcar 'extract-score assign-list)))
 
-  (defun file-link-string (student num link-name)
-    (concat "[[file:~/" semester "/" class "/" student "/week" num "/" link-name num ".org][%3s]]"))
+    (defun file-link-string (student num link-name)
+      "Creates a file link in org as a string to the specific assignment or
+    assessment for the student. The score will be the name of the link."
+      (concat "[[file:~/" semester "/" class
+              "/" student "/week" num "/" link-name num ".org][%3s]]"))
 
-  (defun is-assign-line (assign line)
-    (or (string-match (concat assign " Assign") line)
-        (string-match (concat assign " Assess") line)))
+    (defun is-assign-line (assign line)
+      "Determines if the line contains both the assignment week and
+    the word 'Assign' or 'Assess'."
+      (or (string-match (concat assign " Assign") line)
+          (string-match (concat assign " Assess") line)))
 
-  (defun get-student-file (student)
-    (setq current-file
-          (with-temp-buffer
-            (insert-file-contents
-             (concat "~/" semester "/" class "/" student "/week00/see-grades.org"))
-            (split-string (buffer-string) "\n" t))
-          final-info (split-up-score (car (last current-file)))
-          file-student student))
+    (defun get-student-file (student)
+      "Grabs the student's see-grades.org file as a list of lines.
+    This will also set variables the final grade and letter and the
+    current student name for updating purposes."
+      (setq current-file
+            (with-temp-buffer
+              (insert-file-contents
+               (concat "~/" semester "/" class "/"
+                       student "/week00/see-grades.org"))
+              (split-string (buffer-string) "\n" t))
+            final-info (split-up-score (car (last current-file)))
+            file-student student))
 
-  (defun extract-score (assign-line)
-    (nth 1 (split-up-score (assign-line))))
+    (defun extract-score (assign-line)
+      "This will grab the grade from the correct position in the
+    assignment line."
+      (nth 1 (split-up-score assign-line)))
 
-  (defun get-final-score ()
-    (car (split-up-score (car (last current-file)))))
+    (defun get-final-score ()
+      "This will grab the numeric final score which is from the current file."
+      (car final-info))
 
-  (defun get-final-letter () (cadr (split-up-score (car (last current-file)))))
+    (defun get-final-letter ()
+      "This will grab the letter final score which is from the current file."
+      (cadr final-info))
 
-  (defun split-up-score (score-line)
-    (split-string score-line "|" t "\\s-+"))
-                                          ;(get-assign-long "lmj-1" "00 Assign" t)
-  (defvar file-student "STARTUP")
-  (defvar semester "972528")
-  (defvar class "1")
+    (defun split-up-score (score-line)
+      "This will split the line into a list of the contents, trimming
+    off one or more spaces on either end if needed."
+      (split-string score-line "|" t "\\s-+"))
+
+    (defvar file-student "STARTUP")
+    (defconst semester "972528")
+    (defconst class "1")
 #+end_src
 
 #+RESULTS:
 : class
-
